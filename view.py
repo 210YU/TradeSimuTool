@@ -35,21 +35,20 @@ def view_result(window, file):
 
 def view_position(window, file):
     print("start view_position")
-    df = import_df(file)
+    text_list = ["flag", "corrDf_num", "benefit", "close_tradeDiff", "target_profit", "pair1", "pair2", "pair3", "pair4", "tradeDiff", "tradePrice1", "tradePrice2", "tradePrice3", "tradePrice4",
+                 "swap", "close_norm1", "close_norm2", "tradeDay", "tradeLots1",
+                 "cost", "closeDay", "tradePeriod", "closePrice1", "closePrice2", "closePrice3", "closePrice4", "benefit1", "benefit2", "benefit3", "benefit4"]
     g.tree_position = ttk.Treeview(window)
+    g.tree_position.bind("<Double-1>", select_position)
     # 列を３列作る
-    g.tree_position["column"] = (1, 2, 3)
+    g.tree_position["column"] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                                 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
     g.tree_position["show"] = "headings"
     # ヘッダーテキスト
-    g.tree_position.heading(1, text="検索ワード")
-    g.tree_position.heading(2, text="ランキング(ドメイン)")
-    g.tree_position.heading(3, text="ランキング（URL）")
-    # 列の幅
-    g.tree_position.column(1, width=200)
-    g.tree_position.column(2, width=100)
-    g.tree_position.column(3, width=100)
+    create_tree_column(text_list, g.tree_position)
+
     # データ挿入
-    insert_position(df)
+    insert_position(g.positions)
     # 設置
     g.tree_position.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
     add_scrollbar(g.tree_position)
@@ -57,23 +56,25 @@ def view_position(window, file):
 
 def view_candidate(window, file):
     print("start view_candidate")
-    df = import_df(file)
+    text_list = ["Date", "No", "CLOSE_NORM_DIFF", "CLOSE_NORM_DIFF_PREV", "CLOSE_NORM_DIFF_DIFF",
+                 "S1", "S2", "S1_Close", "S2_Close", "S1_J_Close", "S2_J_Close", "swap1", "swap2", "swap3", "swap4",
+                 "CLOSE_ZSCORE_DIFF", "CLOSE_ZSCORE_DIFF_PREV", "CLOSE_ZSCORE_DIFF_DIFF", "S1_CLOSE_NORM", "S2_CLOSE_NORM ",
+                 "TODAY_BENEFIT", "TODAY_BENEFIT_TOTAL"]
     g.tree_candidate = ttk.Treeview(window)
+    g.tree_candidate.bind("<Double-1>", select_candidate)
+
     # 列を３列作る
-    g.tree_candidate["column"] = (1, 2, 3)
+    g.tree_candidate["column"] = (
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)
     g.tree_candidate["show"] = "headings"
-    # ヘッダーテキスト
-    g.tree_candidate.heading(1, text="検索ワード")
-    g.tree_candidate.heading(2, text="ランキング(ドメイン)")
-    g.tree_candidate.heading(3, text="ランキング（URL）")
-    # 列の幅
-    g.tree_candidate.column(1, width=200)
-    g.tree_candidate.column(2, width=100)
-    g.tree_candidate.column(3, width=100)
+
+    create_tree_column(text_list, g.tree_candidate)
+
     # データ挿入
-    insert_candidate(df)
+    insert_candidate(g.today_df, g.sort_diff)
     # 設置
-    g.tree_candidate.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+    g.tree_candidate.pack(side=tk.TOP, padx=5, pady=5,
+                          fill=tk.BOTH, expand=True)
     add_scrollbar(g.tree_candidate)
 
 
@@ -91,13 +92,30 @@ def view_log(window):
 
 def add_scrollbar(tree):
     hscrollbar = ttk.Scrollbar(
+        tree, orient=tk.HORIZONTAL, command=tree.xview)
+    vscrollbar = ttk.Scrollbar(
         tree, orient=tk.VERTICAL, command=tree.yview)
-    tree.configure(yscrollcommand=lambda f, l: hscrollbar.set(f, l))
-    hscrollbar.pack(side="right", fill="y")
+    tree.configure(xscrollcommand=lambda f, l: hscrollbar.set(f, l))
+    tree.configure(yscrollcommand=lambda f, l: vscrollbar.set(f, l))
+    hscrollbar.pack(side="bottom", fill="x")
+    vscrollbar.pack(side="right", fill="y")
 
 
 def view_control():
     g.next_button = tk.Button(
-        g.control_frame, text='Next', command=partial(next_func, False,"a")).pack(side=tk.LEFT)
+        g.control_frame, text='Next', command=partial(next_func)).pack(side=tk.LEFT)
+    g.step = 5
     g.skip_button = tk.Button(
-        g.control_frame, text='Next to 10step').pack(side=tk.LEFT)
+        g.control_frame, text='Next to N step', command=partial(next_multi_func)).pack(side=tk.LEFT)
+
+
+def create_tree_column(list, tree):
+    for i, t in enumerate(list):
+        tree.heading(i+1, text=t)
+        # 列の幅
+        if t == "Date":
+            tree.column(i+1, width=100)
+        elif t == "No":
+            tree.column(i+1, width=20)
+        else:
+            tree.column(i+1, width=50)

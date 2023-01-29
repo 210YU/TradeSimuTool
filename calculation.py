@@ -5,6 +5,13 @@ import numpy as np
 import global_value as g
 
 
+def insert_position(pair1, pair2, pair3, pair4, tradeDiff, tradePrice1, tradePrice2, tradePrice3, tradePrice4, swap1, swap2, swap3, swap4, close_norm1, close_norm2, tradeDay, lots1, lots2, lots3, lots4, l, profit, cost, flag):
+    position = ({"flag": (flag), "pair1": pair1, "pair2": pair2, "pair3": pair3, "pair4": pair4, "tradeDiff": tradeDiff, "tradePrice1": tradePrice1, "tradePrice2": tradePrice2, "tradePrice3": tradePrice3, "tradePrice4": tradePrice4,
+                 "swap1": swap1, "swap2": swap2, "swap3": swap3, "swap4": swap4, "close_norm1": close_norm1, "close_norm2": close_norm2, "tradeDay": tradeDay, "tradeLots1": lots1, "tradeLots2": lots2, "tradeLots3": lots3, "tradeLots4": lots4,
+                 "corrDf_num": l, "target_profit": profit, "cost": cost, "closeDay": "", "tradePeriod": "", "close_tradeDiff": 0.0, "closePrice1": 0, "closePrice2": 0, "closePrice3": 0, "closePrice4": 0, "benefit1": -1, "benefit2": -1, "benefit3": -1, "benefit4": -1, "benefit": -1})
+    return position
+
+
 def calc_maxmin_df():
     start_date = g.settings["start_date"]
     sequence = g.settings["sequence"]
@@ -249,3 +256,62 @@ def calc_benefit_df(dfSelect, stockId1, stockId2, convert_currency):
         10).mean()
 
     return dfSelect
+
+
+def update_benefit_calc(i, flag, id):
+    df = g.dfSelectList[id].loc[g.date_list[g.ind]]
+    p = g.positions.iloc[i]
+    # print(p)
+    price1 = p["tradePrice1"]
+    price2 = p["tradePrice2"]
+    price3 = p["tradePrice3"]
+    price4 = p["tradePrice4"]
+    S1 = p["pair1"]
+    S2 = p["pair2"]
+    convert_1c = p["pair3"]
+    convert_2c = p["pair4"]
+    close1 = df[S1+"_J_Close"]
+    close2 = df[S2+"_J_Close"]
+    if convert_1c != "None":
+        close3 = df[convert_1c+"_Close"]
+    else:
+        close3 = 0
+    if convert_2c != "None":
+        close4 = df[convert_2c+"_Close"]
+    else:
+        close4 = 0
+    lots = int(p["tradeLots1"])
+    print(S1, S2, convert_1c, convert_2c, close1, close2, close3, close4)
+    if flag == 2:
+        if close3 != 0:
+            b1 = (close1 - price1) * close3 * lots
+            b3 = ((close3 - price3) * lots)
+        else:
+            b1 = (close1 - price1) * lots
+            b3 = 0
+        if close4 != 0:
+            b2 = (price2 - close2) * close4 * lots
+            b4 = ((price4 - close4) * lots)
+        else:
+            b2 = (price2 - close2) * lots
+            b4 = 0
+    elif flag == 1:
+        if close3 != 0:
+            b1 = (price1 - close1) * close3 * lots
+            b3 = ((price3 - close3) * lots)
+        else:
+            b1 = (price1 - close1) * lots
+            b3 = 0
+        if close4 != 0:
+            b2 = (close2 - price2) * close4 * lots
+            b4 = ((close4 - price4) * lots)
+        else:
+            b2 = (close2 - price2) * lots
+            b4 = 0
+    b = b1 + b2 + b3 + b4
+    mes = f" id:{i} B:{b}, B2:{b1} B2:{b2} B3:{b3} B4:{b4}"
+    print(mes)
+    function.insert_log(mes)
+    df2 = pd.DataFrame(data=[[i, g.date_list[g.ind], df["CLOSE_NORM_DIFF"], b, b1, b2, b3, b4, close1, close2, close3, close4]], columns=[
+                       "Name", "closeDay", "close_tradeDiff", "benefit", "benefit1", "benefit2", "benefit3", "benefit4", "closePrice1", "closePrice2", "closePrice3", "closePrice4"]).set_index("Name")
+    g.positions.update(df2)

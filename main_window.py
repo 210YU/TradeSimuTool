@@ -2,10 +2,11 @@ import tkinter as tk
 import global_value as g
 from view import *
 from function import *
+import setting
 
 
 def init():
-    import_settings()
+    setting.import_settings()
     init_main_window()
     init_position_window()
     init_candidate_window()
