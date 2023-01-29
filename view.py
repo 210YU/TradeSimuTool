@@ -2,6 +2,14 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import global_value as g
 from function import *
+from functools import partial
+
+
+class MovePositionButton(tk.Button):
+    def move_position(self):
+        w = self.winfo_screenwidth()  # モニター幅取得
+        h = self.winfo_screenheight()  # モニター高さ取得
+        return w, h
 
 
 def view_result(window, file):
@@ -86,3 +94,10 @@ def add_scrollbar(tree):
         tree, orient=tk.VERTICAL, command=tree.yview)
     tree.configure(yscrollcommand=lambda f, l: hscrollbar.set(f, l))
     hscrollbar.pack(side="right", fill="y")
+
+
+def view_control():
+    g.next_button = tk.Button(
+        g.control_frame, text='Next', command=partial(next_func, False,"a")).pack(side=tk.LEFT)
+    g.skip_button = tk.Button(
+        g.control_frame, text='Next to 10step').pack(side=tk.LEFT)
