@@ -5,25 +5,15 @@ from function import *
 
 
 def init():
-    g.w_wide, g.w_high = MovePositionButton().move_position()
-    g.w_wide_half = int(g.w_wide / 2)
-    g.w_high_half = int(g.w_high / 2)
-    print(f"モニター幅:{g.w_wide} モニター高さ:{g.w_high}")
+    import_settings()
     init_main_window()
     init_position_window()
     init_candidate_window()
 
 
-class MovePositionButton(tk.Button):
-    def move_position(self):
-        w = self.winfo_screenwidth()  # モニター幅取得
-        h = self.winfo_screenheight()  # モニター高さ取得
-        return w, h
-
-
 def init_main_window():
     g.root.title("メイン画面")
-    g.root.geometry(str(g.w_wide_half)+"x"+str(g.w_high) +
+    g.root.geometry(str(g.settings["w_wide_half"])+"x"+str(g.settings["w_high"]) +
                     "+0+0")
     g.control_frame = tk.Frame(g.root)
     g.control_frame.pack(fill=tk.BOTH, padx=5, pady=5)
@@ -35,31 +25,24 @@ def init_main_window():
     g.plot_frame.pack(fill=tk.BOTH, padx=5, pady=5)
     view_result(g.plot_frame, "result")
     g.log_frame = tk.Frame(g.root)
-    g.log_frame.pack(side="left",fill=tk.BOTH, padx=5, pady=5, expand=True)
+    g.log_frame.pack(side="left", fill=tk.BOTH, padx=5, pady=5, expand=True)
     view_log(g.log_frame)
 
 
 def init_position_window():
     g.position_win = tk.Toplevel()
-    g.position_win.geometry(str(g.w_wide_half)+"x"+str(g.w_high_half) +
-                            "+"+str(g.w_wide_half)+"+0")
+    g.position_win.geometry(str(g.settings["w_wide_half"])+"x"+str(g.settings["w_high_half"]) +
+                            "+"+str(g.settings["w_wide_half"])+"+0")
     g.position_win.title("ポジション一覧")
     view_position(g.position_win, "position")
 
 
 def init_candidate_window():
     g.candidate_win = tk.Toplevel()
-    g.candidate_win.geometry(str(g.w_wide_half)+"x"+str(g.w_high_half) +
-                             "+"+str(g.w_wide_half)+"+"+str(g.w_high_half))
+    g.candidate_win.geometry(str(g.settings["w_wide_half"])+"x"+str(g.settings["w_high_half"]) +
+                             "+"+str(g.settings["w_wide_half"])+"+"+str(g.settings["w_high_half"]))
     g.candidate_win.title("候補一覧")
     view_candidate(g.candidate_win, "candidate")
-
-
-def view_control():
-    g.next_button = tk.Button(
-        g.control_frame, text='Next', command=next_func).pack(side=tk.LEFT)
-    g.skip_button = tk.Button(
-        g.control_frame, text='Next to 10step').pack(side=tk.LEFT)
 
 
 def main():
