@@ -24,7 +24,7 @@ def init_main_window():
     view_result(g.result_frame, "result")
     g.plot_frame = tk.Frame(g.root)
     g.plot_frame.pack(fill=tk.BOTH, padx=5, pady=5)
-    view_result(g.plot_frame, "result")
+    view_plot(g.plot_frame)
     g.log_frame = tk.Frame(g.root)
     g.log_frame.pack(side="left", fill=tk.BOTH, padx=5, pady=5, expand=True)
     view_log(g.log_frame)
@@ -32,7 +32,7 @@ def init_main_window():
 
 def init_position_window():
     g.position_win = tk.Toplevel()
-    g.position_win.geometry(str(g.settings["w_wide_half"])+"x"+str(g.settings["w_high_half"]) +
+    g.position_win.geometry(str(g.settings["w_wide_half"])+"x"+str(int(g.settings["w_high"]*(1/3))) +
                             "+"+str(g.settings["w_wide_half"])+"+0")
     g.position_win.title("ポジション一覧")
     view_position(g.position_win, "position")
@@ -40,10 +40,10 @@ def init_position_window():
 
 def init_candidate_window():
     g.candidate_win = tk.Toplevel()
-    g.candidate_win.geometry(str(g.settings["w_wide_half"])+"x"+str(g.settings["w_high_half"]) +
-                             "+"+str(g.settings["w_wide_half"])+"+"+str(g.settings["w_high_half"]))
+    g.candidate_win.geometry(str(g.settings["w_wide_half"])+"x"+str(int(g.settings["w_high"]*(2/3))) +
+                             "+"+str(g.settings["w_wide_half"])+"+"+str(int(g.settings["w_high"]*(1/3))))
     g.candidate_win.title("候補一覧")
-    view_candidate(g.candidate_win, "candidate")
+    view_candidate(g.candidate_win)
 
 
 def main():
