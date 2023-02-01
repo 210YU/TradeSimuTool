@@ -325,3 +325,4 @@ def update_benefit_calc(i, flag, id):
 def today_benefit():
     today_total_money = g.settings["initial_money"] + g.today_total
     g.total_all_list.append(today_total_money)
+    g.total_list.append(g.settings["initial_money"])
