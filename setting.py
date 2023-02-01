@@ -17,7 +17,6 @@ def import_settings():
         g.dfSelectList[0].reset_index(), g.settings["finish_date"])
     g.date_list = g.dfSelectList[0].copy().iloc[start_id:finish_id].index
     g.ind = 0
-    g.today_total = 0
     g.today_df, g.sort_diff = merge_df_today()
     g.positions = pd.DataFrame()
     g.result = pd.DataFrame()

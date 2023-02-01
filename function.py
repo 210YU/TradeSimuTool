@@ -11,6 +11,7 @@ warnings.simplefilter('ignore')
 def next_func(mes="Push Next Button"):
     g.ind += 1
     g.today_total = 0
+    g.today_total_benefit = 0
     # print("Click button : next_func")
     # insert_log(mes)
     g.today_df, g.sort_diff = setting.merge_df_today()
@@ -102,30 +103,6 @@ def insert_result(df):
             p["tradeDay"], p["closeDay"], p["tradePeriod"], p["benefit"], p["swap_benefit"], p["flag"], p["corrDf_num"], p["close_tradeDiff"], p["target_profit"],  p["pair1"], p["pair2"], p["pair3"], p["pair4"], p["tradeDiff"], p["tradePrice1"], p["tradePrice2"], p["tradePrice3"], p["tradePrice4"], p["swap"], p["close_norm1"], p["close_norm2"],  p["tradeLots1"], p["cost"], p["closePrice1"], p["closePrice2"], p["closePrice3"], p["closePrice4"], p["benefit1"], p["benefit2"], p["benefit3"], p["benefit4"]))
 
 
-def update_candidate():
-    delete_tree(g.tree_candidate)
-    insert_candidate(g.today_df, g.sort_diff)
-
-
-def update_result(p):
-    delete_tree(g.tree_result)
-    g.result = g.result.append(p)
-    insert_result(g.result)
-
-
-def update_position():
-    # print("update_position")
-    delete_tree(g.tree_position)
-    insert_positions(g.positions)
-
-
-def update_benefit():
-    for i in range(len(g.positions)):
-        id = int(float(g.positions.iloc[i]["corrDf_num"]))
-        flag = g.positions.iloc[i]["flag"]
-        calculation.update_benefit_calc(i, flag, id)
-
-
 def select_position(event):
     # print("select_position")
     # record_id = g.tree_position.focus()
@@ -150,10 +127,10 @@ def select_position(event):
             b = (position.iloc[0]["benefit"] +
                  position.iloc[0]["swap_benefit"])
             g.settings["initial_money"] += b
+            # g.today_total_benefit += b
             g.settings["money"] += (b + position.iloc[0]["cost"])
             output_p = "Id:{} Close! Benefit:{} Total:{}({})".format(
                 (record_values[1]), int(b), g.settings["initial_money"], g.settings["money"])
-            g.total_list.append(g.settings["initial_money"])
             update_result(position)
             update_position()
             print(output_p)
@@ -162,13 +139,6 @@ def select_position(event):
 
         else:
             g.positions = g.positions.append(position, ignore_index=True)
-
-
-def plot_total_graph():
-    g.ax1.plot(g.total_list)
-    g.ax2.plot(g.total_all_list)
-    # 表示
-    g.fig_canvas.draw()
 
 
 def select_candidate(event):
@@ -308,3 +278,34 @@ def searchPosition(id, day):
     check = len(exist_check_df)
     g.positions = g.positions.drop(list(exist_check_df.index))
     return exist_check_df, check
+
+
+def update_candidate():
+    delete_tree(g.tree_candidate)
+    insert_candidate(g.today_df, g.sort_diff)
+
+
+def update_result(p):
+    delete_tree(g.tree_result)
+    g.result = g.result.append(p)
+    insert_result(g.result)
+
+
+def update_position():
+    # print("update_position")
+    delete_tree(g.tree_position)
+    insert_positions(g.positions)
+
+
+def update_benefit():
+    for i in range(len(g.positions)):
+        id = int(float(g.positions.iloc[i]["corrDf_num"]))
+        flag = g.positions.iloc[i]["flag"]
+        calculation.update_benefit_calc(i, flag, id)
+
+
+def plot_total_graph():
+    g.ax1.plot(g.total_list)
+    g.ax1.plot(g.total_all_list)
+    # 表示
+    g.fig_canvas.draw()

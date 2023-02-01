@@ -99,7 +99,8 @@ def view_plot(window):
     fig = Figure(figsize=(10, 2))
     # 座標軸の作成
     g.ax1 = fig.add_subplot(1, 1, 1)
-    g.ax2 = fig.add_subplot(1, 2, 1)
+    # 2軸目を追加するときに
+    # g.ax2 = fig.add_subplot(1, 2, 1)
 
     # matplotlibの描画領域とウィジェット(Frame)の関連付け
     g.fig_canvas = FigureCanvasTkAgg(fig, window)
