@@ -17,14 +17,21 @@ def import_settings():
         g.dfSelectList[0].reset_index(), g.settings["finish_date"])
     g.date_list = g.dfSelectList[0].copy().iloc[start_id:finish_id].index
     g.ind = 0
+    g.today_total = 0
     g.today_df, g.sort_diff = merge_df_today()
     g.positions = pd.DataFrame()
+    g.result = pd.DataFrame()
+    g.total_list = []
+    g.total_all_list = []
+    # 途中から開始する場合
+    # if load_dir != "":
+    #   g.settings = load_settings()
 
 
 def import_setting():
     w_wide, w_high = view.MovePositionButton().move_position()
     w_wide = int(w_wide * 0.99)
-    w_high = int(w_high * 0.99)
+    w_high = int(w_high * 0.98)
     print(f"モニター幅:{w_wide} モニター高さ:{w_high}")
     w_wide_half = int(w_wide / 2)
     w_high_half = int(w_high / 2)
@@ -51,7 +58,7 @@ def import_setting():
         "pair": ["USDJPY", "GBPJPY", "AUDJPY", "EURJPY", "CADJPY", "NZDJPY", "CHFJPY", "SGDJPY", "MXNJPY", "ZARJPY", "TRYJPY", "SEKJPY", "EURUSD", "GBPUSD", "GBPAUD", "NZDUSD", "AUDUSD", "EURGBP", "EURAUD", "AUDNZD", "USDCAD", "USDCHF", "EURCHF", "GBPCHF"],
         "convert_currency": ["EURUSD", "GBPUSD", "GBPAUD", "NZDUSD", "AUDUSD", "EURGBP", "EURAUD", "AUDNZD", "USDCAD", "USDCHF", "EURCHF", "GBPCHF"],
         "data_dir": "./data/"+str(period)+"min/",
-        "df_dir": "./data/calc_maxmin_df/",
+        "df_dir": "./data/calc_maxmin_df/"+str(period)+"min/",
         "corrDf_dir": "./data/SimulationResult_700_20100105-20171231_v1.csv",
         "w_wide": w_wide,
         "w_high": w_high,

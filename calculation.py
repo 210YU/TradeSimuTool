@@ -5,10 +5,10 @@ import numpy as np
 import global_value as g
 
 
-def insert_position(pair1, pair2, pair3, pair4, tradeDiff, tradePrice1, tradePrice2, tradePrice3, tradePrice4, swap1, swap2, swap3, swap4, close_norm1, close_norm2, tradeDay, lots1, lots2, lots3, lots4, l, profit, cost, flag):
+def create_position(pair1, pair2, pair3, pair4, tradeDiff, tradePrice1, tradePrice2, tradePrice3, tradePrice4, swap1, swap2, swap3, swap4, total_swap_prediction, close_norm1, close_norm2, tradeDay, lots1, lots2, lots3, lots4, l, profit, cost, flag):
     position = ({"flag": (flag), "pair1": pair1, "pair2": pair2, "pair3": pair3, "pair4": pair4, "tradeDiff": tradeDiff, "tradePrice1": tradePrice1, "tradePrice2": tradePrice2, "tradePrice3": tradePrice3, "tradePrice4": tradePrice4,
-                 "swap1": swap1, "swap2": swap2, "swap3": swap3, "swap4": swap4, "close_norm1": close_norm1, "close_norm2": close_norm2, "tradeDay": tradeDay, "tradeLots1": lots1, "tradeLots2": lots2, "tradeLots3": lots3, "tradeLots4": lots4,
-                 "corrDf_num": l, "target_profit": profit, "cost": cost, "closeDay": "", "tradePeriod": "", "close_tradeDiff": 0.0, "closePrice1": 0, "closePrice2": 0, "closePrice3": 0, "closePrice4": 0, "benefit1": -1, "benefit2": -1, "benefit3": -1, "benefit4": -1, "benefit": -1})
+                 "swap1": swap1, "swap2": swap2, "swap3": swap3, "swap4": swap4, "swap": total_swap_prediction, "close_norm1": close_norm1, "close_norm2": close_norm2, "tradeDay": tradeDay, "tradeLots1": lots1, "tradeLots2": lots2, "tradeLots3": lots3, "tradeLots4": lots4,
+                 "corrDf_num": int(l), "target_profit": profit, "cost": cost, "closeDay": "", "tradePeriod": "", "close_tradeDiff": 0.0, "closePrice1": 0, "closePrice2": 0, "closePrice3": 0, "closePrice4": 0, "benefit1": -1, "benefit2": -1, "benefit3": -1, "benefit4": -1, "benefit": -1, "swap_benefit": 0})
     return position
 
 
@@ -261,6 +261,10 @@ def calc_benefit_df(dfSelect, stockId1, stockId2, convert_currency):
 def update_benefit_calc(i, flag, id):
     df = g.dfSelectList[id].loc[g.date_list[g.ind]]
     p = g.positions.iloc[i]
+    trade_day = p["tradeDay"]
+    tradePeriod = int((pd.to_datetime(
+        g.date_list[g.ind]) - pd.to_datetime(trade_day)).total_seconds() / 60 / 60 / 24)
+    swap_benefit = tradePeriod * p["swap"]
     # print(p)
     price1 = p["tradePrice1"]
     price2 = p["tradePrice2"]
@@ -309,9 +313,15 @@ def update_benefit_calc(i, flag, id):
             b2 = (close2 - price2) * lots
             b4 = 0
     b = b1 + b2 + b3 + b4
-    mes = f" id:{i} B:{b}, B2:{b1} B2:{b2} B3:{b3} B4:{b4}"
+    g.today_total += (b+swap_benefit)
+    mes = f" id:{i} B:{b}, B2:{b1} B2:{b2} B3:{b3} B4:{b4} SWAP_B:{swap_benefit}"
     print(mes)
     function.insert_log(mes)
-    df2 = pd.DataFrame(data=[[i, g.date_list[g.ind], df["CLOSE_NORM_DIFF"], b, b1, b2, b3, b4, close1, close2, close3, close4]], columns=[
-                       "Name", "closeDay", "close_tradeDiff", "benefit", "benefit1", "benefit2", "benefit3", "benefit4", "closePrice1", "closePrice2", "closePrice3", "closePrice4"]).set_index("Name")
+    df2 = pd.DataFrame(data=[[i, g.date_list[g.ind], df["CLOSE_NORM_DIFF"], b, b1, b2, b3, b4, close1, close2, close3, close4, tradePeriod, swap_benefit]], columns=[
+                       "Name", "closeDay", "close_tradeDiff", "benefit", "benefit1", "benefit2", "benefit3", "benefit4", "closePrice1", "closePrice2", "closePrice3", "closePrice4", "tradePeriod", "swap_benefit"]).set_index("Name")
     g.positions.update(df2)
+
+
+def today_benefit():
+    today_total_money = g.settings["initial_money"] + g.today_total
+    g.total_all_list.append(today_total_money)
